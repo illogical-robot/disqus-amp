@@ -35,6 +35,13 @@
   var disqus_config = function() {
     this.page.url = getQueryVariable('url');
     this.page.identifier = getQueryVariable('identifier');
+    this.callbacks.onReady.push(function () {
+        window.parent.postMessage({
+            sentinel: 'amp',
+            type: 'embed-size',
+            height: document.body.scrollHeight
+        }, '*');
+    });
   };
   (function() {
     var d = document,
