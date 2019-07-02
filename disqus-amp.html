@@ -10,11 +10,17 @@
       } catch (err) {}
       if (!msg)
         return false;
-      if (msg.name === 'resize') {
+      if (msg.name === 'resize' || msg.name === 'rendered') {
+		if(msg.data.height < 300){
+			var height = 300;
+		} else {
+			var height = msg.data.height;
+		}
+		console.log(msg.name + ' triggered');
         window.parent.postMessage({
           sentinel: 'amp',
           type: 'embed-size',
-          height: msg.data.height
+          height: height
         }, '*');
       }
     }
@@ -35,11 +41,17 @@
   var disqus_config = function() {
     this.page.url = getQueryVariable('url');
     this.page.identifier = getQueryVariable('identifier');
-    this.callbacks.onReady.push(function () {
+    this.callbacks.onReady.push(function (e) {
+		if(e.height < 300){
+			var height = 300;
+		} else {
+			var height = e.height;
+		}
+		console.log('onReady triggered');
         window.parent.postMessage({
             sentinel: 'amp',
             type: 'embed-size',
-            height: document.body.scrollHeight
+            height: height
         }, '*');
     });
   };
