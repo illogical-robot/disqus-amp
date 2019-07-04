@@ -1,67 +1,75 @@
 <div id="disqus_thread"></div>
 
 <script>
-  window.addEventListener('message', receiveMessage, false);
-  function receiveMessage(event) {
-    if (event.data) {
-      var msg;
-      try {
-        msg = JSON.parse(event.data);
-      } catch (err) {}
-      if (!msg)
-        return false;
-      if (msg.name === 'resize' || msg.name === 'rendered') {
-		if(msg.data.height < 300){
-			var height = 300;
-		} else {
-			var height = msg.data.height;
-		}
-		console.log(msg.name + ' triggered');
-        window.parent.postMessage({
-          sentinel: 'amp',
-          type: 'embed-size',
-          height: height
-        }, '*');
-      }
+    var post_message = {
+        sentinel: 'amp',
+        type: 'embed-size',
+        height: 300
+    };
+    function postHeight() {
+        console.log('post new embed-height', post_message);
+        window.parent.postMessage(post_message, '*');
     }
-  }
-  function getQueryVariable(name) {
-    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-  }
-  function generateCss(q) {
-    var css       = document.createElement('style'),
-        sp2       = document.getElementById('disqus_thread'),
-        parentDiv = sp2.parentNode;
-    css.type = 'text/css';
-    if (css.styleSheet) css.styleSheet.cssText = q;
-    else css.appendChild(document.createTextNode(q));
-    parentDiv.insertBefore(css, sp2);
-  }
-  var disqus_config = function() {
-    this.page.url = getQueryVariable('url');
-    this.page.identifier = getQueryVariable('identifier');
-    this.callbacks.onReady.push(function (e) {
-		if(e.height < 300){
-			var height = 300;
-		} else {
-			var height = e.height;
-		}
-		console.log('onReady triggered');
-        window.parent.postMessage({
-            sentinel: 'amp',
-            type: 'embed-size',
-            height: height
-        }, '*');
-    });
-  };
-  (function() {
-    var d = document,
-        s = d.createElement('script'),
-        q = '#disqus_thread {font-family:' + getQueryVariable('fontBodyFamily') + '} a {color:#' + getQueryVariable('fontLinkColor') + '}';
+    postHeight();
+
+
+    window.addEventListener('message', receiveMessage, false);
+    function receiveMessage(event) {
+        if (event.data) {
+            var msg;
+            try {
+                msg = JSON.parse(event.data);
+            } catch (err) { }
+            if (!msg)
+                return false;
+            if (msg.name === 'resize' || msg.name === 'rendered') {
+                if (msg.data.height < 300) {
+                    height = 300;
+                } else {
+                    height = msg.data.height;
+                }
+                post_message.height = height;
+                console.log(msg.name + ' triggered');
+                console.log(post_message);
+                postHeight();
+            }
+        }
+    }
+    function getQueryVariable(name) {
+        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+        return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+    }
+    function generateCss(q) {
+        var css = document.createElement('style'),
+            sp2 = document.getElementById('disqus_thread'),
+            parentDiv = sp2.parentNode;
+        css.type = 'text/css';
+        if (css.styleSheet) css.styleSheet.cssText = q;
+        else css.appendChild(document.createTextNode(q));
+        parentDiv.insertBefore(css, sp2);
+    }
+    var disqus_config = function () {
+        this.page.url = getQueryVariable('url');
+        this.page.identifier = getQueryVariable('identifier');
+        this.callbacks.onReady.push(function (e) {
+            if (e.height < 300) {
+                height = 300;
+            } else {
+                height = e.height;
+            }
+            post_message.height = height;
+            console.log('onReady triggered');
+            console.log(post_message);
+            postHeight();
+        });
+    };
+    (function () {
+        var d = document,
+            s = d.createElement('script'),
+            q = '#disqus_thread {font-family:' + getQueryVariable('fontBodyFamily') + '} a {color:#' + getQueryVariable('fontLinkColor') + '}';
         generateCss(q);
-    s.src = '//' + getQueryVariable('shortname') + '.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-  })();
+        s.src = '//' + getQueryVariable('shortname') + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
