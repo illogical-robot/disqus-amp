@@ -7,7 +7,6 @@
         height: 300
     };
     function postHeight() {
-        console.log('post new embed-height', post_message);
         window.parent.postMessage(post_message, '*');
     }
     postHeight();
@@ -29,8 +28,6 @@
                     height = msg.data.height;
                 }
                 post_message.height = height;
-                console.log(msg.name + ' triggered');
-                console.log(post_message);
                 postHeight();
             }
         }
@@ -58,8 +55,6 @@
                 height = e.height;
             }
             post_message.height = height;
-            console.log('onReady triggered');
-            console.log(post_message);
             postHeight();
         });
     };
