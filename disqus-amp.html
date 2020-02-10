@@ -1,70 +1,117 @@
-<div id="disqus_thread"></div>
+<!DOCTYPE html>
+<html lang="en">
 
-<script>
-    var post_message = {
-        sentinel: 'amp',
-        type: 'embed-size',
-        height: 300
-    };
-    function postHeight() {
-        window.parent.postMessage(post_message, '*');
-    }
-    postHeight();
+<head>
+    <meta charset="utf-8">
+    <title>Android Police Disqus for AMP</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            padding: 8px;
+        }
+
+        a {
+            color: #333
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+            }
+
+            a {
+                color: #fff;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="disqus_thread"></div>
+
+    <script>
+        var post_message = {
+            sentinel: 'amp',
+            type: 'embed-size',
+            height: 300
+        };
+
+        function postHeight() {
+            window.parent.postMessage(post_message, '*');
+        }
+        postHeight();
 
 
-    window.addEventListener('message', receiveMessage, false);
-    function receiveMessage(event) {
-        if (event.data) {
-            var msg;
-            try {
-                msg = JSON.parse(event.data);
-            } catch (err) { }
-            if (!msg)
-                return false;
-            if (msg.name === 'resize' || msg.name === 'rendered') {
-                if (msg.data.height < 300) {
+        window.addEventListener('message', receiveMessage, false);
+
+        function receiveMessage(event) {
+            if (event.data) {
+                var msg;
+                try {
+                    msg = JSON.parse(event.data);
+                } catch (err) {}
+                if (!msg)
+                    return false;
+                if (msg.name === 'resize' || msg.name === 'rendered') {
+                    if (msg.data.height < 300) {
+                        height = 300;
+                    } else {
+                        height = msg.data.height;
+                    }
+                    post_message.height = height;
+                    postHeight();
+                }
+            }
+        }
+
+        function getQueryVariable(name) {
+            var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+            return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+        }
+
+        function generateCss(q) {
+            var css = document.createElement('style'),
+                sp2 = document.getElementById('disqus_thread'),
+                parentDiv = sp2.parentNode;
+            css.type = 'text/css';
+            if (css.styleSheet) css.styleSheet.cssText = q;
+            else css.appendChild(document.createTextNode(q));
+            parentDiv.insertBefore(css, sp2);
+        }
+        var disqus_config = function() {
+            this.page.url = getQueryVariable('url');
+            this.page.identifier = getQueryVariable('identifier');
+            this.callbacks.onReady.push(function(e) {
+                if (e.height < 300) {
                     height = 300;
                 } else {
-                    height = msg.data.height;
+                    height = e.height;
                 }
                 post_message.height = height;
                 postHeight();
-            }
-        }
-    }
-    function getQueryVariable(name) {
-        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-        return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-    }
-    function generateCss(q) {
-        var css = document.createElement('style'),
-            sp2 = document.getElementById('disqus_thread'),
-            parentDiv = sp2.parentNode;
-        css.type = 'text/css';
-        if (css.styleSheet) css.styleSheet.cssText = q;
-        else css.appendChild(document.createTextNode(q));
-        parentDiv.insertBefore(css, sp2);
-    }
-    var disqus_config = function () {
-        this.page.url = getQueryVariable('url');
-        this.page.identifier = getQueryVariable('identifier');
-        this.callbacks.onReady.push(function (e) {
-            if (e.height < 300) {
-                height = 300;
-            } else {
-                height = e.height;
-            }
-            post_message.height = height;
-            postHeight();
+            });
+        };
+        (function() {
+            var d = document,
+                s = d.createElement('script'),
+                q = '#disqus_thread {font-family:' + getQueryVariable('fontBodyFamily') + '}';
+            generateCss(q);
+            s.src = '//' + getQueryVariable('shortname') + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+        window.matchMedia('(prefers-color-scheme: dark)').addListener(function(evt) {
+            // reload page when user changes color scheme
+            location.reload(); 
         });
-    };
-    (function () {
-        var d = document,
-            s = d.createElement('script'),
-            q = '#disqus_thread {font-family:' + getQueryVariable('fontBodyFamily') + '} a {color:#' + getQueryVariable('fontLinkColor') + '}';
-        generateCss(q);
-        s.src = '//' + getQueryVariable('shortname') + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
+    </script>
+</body>
+
+</html>
