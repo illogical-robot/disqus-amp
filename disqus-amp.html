@@ -10,8 +10,6 @@
         body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: auto;
         }
 
         body {
@@ -34,7 +32,7 @@
     </style>
 </head>
 
-<body>
+<body onresize="postHeight()">
 
     <div id="disqus_thread"></div>
 
@@ -46,34 +44,18 @@
         };
 
         function postHeight() {
+            var new_height = document.getElementById('disqus_thread').scrollHeight;
+            console.log(new_height);
+            if (new_height > 340) {
+                post_message.height = new_height;
+            }
+            console.log(post_message);
             window.parent.postMessage(post_message, '*');
         }
         postHeight();
 
 
-        window.addEventListener('message', receiveMessage, false);
-
-        function receiveMessage(event) {
-            console.log('message received ' + event);
-            if (event.data) {
-                var msg;
-                try {
-                    msg = JSON.parse(event.data);
-                } catch (err) { }
-                if (!msg)
-                    return false;
-                if (msg.name === 'resize' || msg.name === 'rendered') {
-                    if (msg.data.height < 340) {
-                        height = 340;
-                    } else {
-                        height = msg.data.height;
-                    }
-                    post_message.height = height;
-                    console.log('receiveMessage height updated - ' + post_message);
-                    postHeight();
-                }
-            }
-        }
+        window.addEventListener('message', postHeight);
 
         function getQueryVariable(name) {
             var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
@@ -93,14 +75,6 @@
             this.page.url = getQueryVariable('url');
             this.page.identifier = getQueryVariable('identifier');
             this.callbacks.onReady.push(function (e) {
-                if (e.height < 340) {
-                    height = 340;
-                } else {
-                    height = e.height;
-                }
-                post_message.height = height;
-                console.log('disqus onReady height updated - ' + post_message);
-                console.log('disqus onReady event - ' + e);
                 postHeight();
             });
         };
