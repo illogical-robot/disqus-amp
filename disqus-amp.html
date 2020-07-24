@@ -10,6 +10,8 @@
         body {
             margin: 0;
             padding: 0;
+            height: 100%;
+            overflow: auto;
         }
 
         body {
@@ -40,7 +42,7 @@
         var post_message = {
             sentinel: 'amp',
             type: 'embed-size',
-            height: 300
+            height: 340
         };
 
         function postHeight() {
@@ -52,20 +54,22 @@
         window.addEventListener('message', receiveMessage, false);
 
         function receiveMessage(event) {
+            console.log('message received ' + event);
             if (event.data) {
                 var msg;
                 try {
                     msg = JSON.parse(event.data);
-                } catch (err) {}
+                } catch (err) { }
                 if (!msg)
                     return false;
                 if (msg.name === 'resize' || msg.name === 'rendered') {
-                    if (msg.data.height < 300) {
-                        height = 300;
+                    if (msg.data.height < 340) {
+                        height = 340;
                     } else {
                         height = msg.data.height;
                     }
                     post_message.height = height;
+                    console.log('receiveMessage height updated - ' + post_message);
                     postHeight();
                 }
             }
@@ -85,20 +89,22 @@
             else css.appendChild(document.createTextNode(q));
             parentDiv.insertBefore(css, sp2);
         }
-        var disqus_config = function() {
+        var disqus_config = function () {
             this.page.url = getQueryVariable('url');
             this.page.identifier = getQueryVariable('identifier');
-            this.callbacks.onReady.push(function(e) {
-                if (e.height < 300) {
-                    height = 300;
+            this.callbacks.onReady.push(function (e) {
+                if (e.height < 340) {
+                    height = 340;
                 } else {
                     height = e.height;
                 }
                 post_message.height = height;
+                console.log('disqus onReady height updated - ' + post_message);
+                console.log('disqus onReady event - ' + e);
                 postHeight();
             });
         };
-        (function() {
+        (function () {
             var d = document,
                 s = d.createElement('script'),
                 q = '#disqus_thread {font-family:' + getQueryVariable('fontBodyFamily') + '}';
@@ -107,9 +113,9 @@
             s.setAttribute('data-timestamp', +new Date());
             (d.head || d.body).appendChild(s);
         })();
-        window.matchMedia('(prefers-color-scheme: dark)').addListener(function(evt) {
+        window.matchMedia('(prefers-color-scheme: dark)').addListener(function (evt) {
             // reload page when user changes color scheme
-            location.reload(); 
+            location.reload();
         });
     </script>
 </body>
