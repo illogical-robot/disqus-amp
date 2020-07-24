@@ -10,6 +10,8 @@
         body {
             margin: 0;
             padding: 0;
+            height: 100%;
+            overflow: auto;
         }
 
         body {
@@ -40,7 +42,7 @@
         var post_message = {
             sentinel: 'amp',
             type: 'embed-size',
-            height: 300
+            height: 340
         };
 
         function postHeight() {
@@ -61,8 +63,8 @@
                 if (!msg)
                     return false;
                 if (msg.name === 'resize' || msg.name === 'rendered') {
-                    if (msg.data.height < 300) {
-                        height = 300;
+                    if (msg.data.height < 340) {
+                        height = 340;
                     } else {
                         height = msg.data.height;
                     }
@@ -91,8 +93,8 @@
             this.page.url = getQueryVariable('url');
             this.page.identifier = getQueryVariable('identifier');
             this.callbacks.onReady.push(function (e) {
-                if (e.height < 300) {
-                    height = 300;
+                if (e.height < 340) {
+                    height = 340;
                 } else {
                     height = e.height;
                 }
